@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>TWICE 5TH WORLD TOUR ‘READY TO BE’ | Official Concert Ticketing</title>
     <meta name="description" content="Official ticket sales and VIP Soundcheck packages for TWICE 5TH WORLD TOUR 'READY TO BE'. Book your official seats now!">
 
@@ -1411,8 +1412,8 @@
             document.getElementById('onceId').value = 'ONCE-' + randomSuffix;
         }
 
-        // Handle Checkout Form Submission
-        function handleCheckout(e) {
+        // Handle Checkout Form Submission with Real Backend Registration & Email Sending
+        async function handleCheckout(e) {
             e.preventDefault();
 
             const fullName = document.getElementById('fullName').value.trim();
@@ -1421,56 +1422,102 @@
             const phone = document.getElementById('phoneNum').value.trim();
             const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'Credit Card';
 
-            if (!fullName || !email || !onceId) {
+            if (!fullName || !email || !onceId || !phone) {
                 alert('Please complete all required fields.');
                 return;
             }
 
-            // Generate random seat numbers
-            const randomRow = ['A', 'B', 'C', 'D', 'E'][Math.floor(Math.random() * 5)];
-            const startSeat = Math.floor(Math.random() * 25) + 1;
-            let seatsStr = `ROW ${randomRow}: ${startSeat}`;
-            if (ticketQty > 1) {
-                seatsStr = `ROW ${randomRow}: ${startSeat} - ${startSeat + ticketQty - 1}`;
+            const submitBtn = document.getElementById('submitBtn');
+            const originalBtnHtml = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Registering & Sending Email...';
+
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+                const response = await fetch('{{ route('ticket.register') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        name: fullName,
+                        email: email,
+                        phone: phone,
+                        once_id: onceId,
+                        ticket_tier: selectedTierKey,
+                        quantity: ticketQty,
+                        payment_method: paymentMethod,
+                        currency: currentCurrency
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    const errorMsg = data.message || (data.errors ? Object.values(data.errors).flat().join('\n') : 'Registration failed');
+                    alert('Error: ' + errorMsg);
+                    return;
+                }
+
+                const ticket = data.ticket;
+
+                // Store active order from server response
+                activeTicketOrder = {
+                    tier: TIER_DATA[ticket.ticket_tier] || TIER_DATA[selectedTierKey],
+                    fullName: ticket.name,
+                    email: ticket.email,
+                    onceId: ticket.once_id,
+                    phone: ticket.phone,
+                    qty: ticket.quantity,
+                    seats: ticket.seats,
+                    refNumber: ticket.booking_reference,
+                    paymentMethod: ticket.payment_method,
+                    bookingDate: new Date().toLocaleDateString()
+                };
+
+                // Trigger celebration confetti
+                triggerConfetti();
+
+                // Populate Modal with real registered ticket data from server
+                document.getElementById('ticketAttendeeName').textContent = ticket.name;
+                document.getElementById('ticketOnceId').textContent = ticket.once_id;
+                document.getElementById('ticketTierName').textContent = ticket.tier_label;
+                document.getElementById('ticketQuantity').textContent = `${ticket.quantity} Ticket(s)`;
+                document.getElementById('ticketGate').textContent = ticket.gate;
+                document.getElementById('ticketSection').textContent = ticket.section;
+                document.getElementById('ticketSeats').textContent = ticket.seats;
+                document.getElementById('ticketBarcodeCode').textContent = `*${ticket.booking_reference}*`;
+
+                // Enable "My Ticket" navbar button
+                const myTicketsBtn = document.getElementById('myTicketsBtn');
+                const badge = document.getElementById('ticketBadge');
+                if (myTicketsBtn) myTicketsBtn.classList.remove('hidden');
+                if (badge) badge.classList.remove('hidden');
+
+                // Open Modal
+                openTicketModal();
+
+                // Alert notification
+                setTimeout(() => {
+                    if (data.email_sent === false) {
+                        alert('⚠️ Registration saved, but email could not be delivered:\n' + (data.email_error || 'Check mail credentials in .env'));
+                    } else {
+                        alert('💌 ' + data.message);
+                    }
+                }, 400);
+
+            } catch (err) {
+                console.error(err);
+                alert('Connection error occurred while processing registration: ' + err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                submitBtn.innerHTML = originalBtnHtml;
             }
-
-            const refNumber = 'TWICE-JIS-2026-' + Math.floor(1000 + Math.random() * 9000);
-
-            // Store active order
-            activeTicketOrder = {
-                tier: TIER_DATA[selectedTierKey],
-                fullName,
-                email,
-                onceId,
-                phone,
-                qty: ticketQty,
-                seats: seatsStr,
-                refNumber,
-                paymentMethod,
-                bookingDate: new Date().toLocaleDateString()
-            };
-
-            // Trigger celebration confetti
-            triggerConfetti();
-
-            // Populate Modal with realistic ticket data
-            document.getElementById('ticketAttendeeName').textContent = fullName;
-            document.getElementById('ticketOnceId').textContent = onceId;
-            document.getElementById('ticketTierName').textContent = TIER_DATA[selectedTierKey].name;
-            document.getElementById('ticketQuantity').textContent = `${ticketQty} Ticket(s)`;
-            document.getElementById('ticketGate').textContent = TIER_DATA[selectedTierKey].gate;
-            document.getElementById('ticketSection').textContent = TIER_DATA[selectedTierKey].section;
-            document.getElementById('ticketSeats').textContent = seatsStr;
-            document.getElementById('ticketBarcodeCode').textContent = `*${refNumber}*`;
-
-            // Enable "My Ticket" navbar button
-            const myTicketsBtn = document.getElementById('myTicketsBtn');
-            const badge = document.getElementById('ticketBadge');
-            if (myTicketsBtn) myTicketsBtn.classList.remove('hidden');
-            if (badge) badge.classList.remove('hidden');
-
-            // Open Modal
-            openTicketModal();
         }
 
         // Open Ticket Modal
