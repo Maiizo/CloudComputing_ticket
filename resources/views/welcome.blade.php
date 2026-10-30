@@ -257,11 +257,7 @@
                     </span>
                 </h1>
 
-                <p class="text-slate-300 text-base sm:text-xl font-normal max-w-2xl mx-auto mb-8 leading-relaxed">
-                    Experience NAYEON, JEONGYEON, MOMO, SANA, JIHYO, MINA, DAHYUN, CHAEYOUNG, and TZUYU live in an unforgettable 3.5-hour stadium extravaganza!
-                </p>
-
-                <!-- Event Details Grid Badge -->
+               <!-- Event Details Grid Badge -->
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto mb-10 text-left">
                     <div class="glass-panel p-3.5 rounded-2xl border border-white/10 flex items-center space-x-3">
                         <div class="w-10 h-10 rounded-xl bg-twice-magenta/20 text-twice-magenta flex items-center justify-center text-lg">

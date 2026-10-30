@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TWICE Concert E-Ticket Confirmation</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: #0B0B14; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #FFFFFF; -webkit-font-smoothing: antialiased;">
+<body style="margin: 0; padding: 0; background-color: #ffffffff; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #FFFFFF; -webkit-font-smoothing: antialiased;">
     <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #0B0B14; padding: 30px 15px;">
         <tr>
             <td align="center">
@@ -36,9 +36,7 @@
                             <h2 style="margin: 0 0 10px 0; font-size: 20px; color: #FCC89B; font-weight: bold;">
                                 Hello, {{ $ticket->name }}! 💕
                             </h2>
-                            <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #D1D5DB;">
-                                Your registration for <strong>TWICE 5TH WORLD TOUR ‘READY TO BE’</strong> is confirmed! Nayeon, Jeongyeon, Momo, Sana, Jihyo, Mina, Dahyun, Chaeyoung, and Tzuyu can't wait to see you shine with other ONCEs!
-                            </p>
+                         
                         </td>
                     </tr>
 
@@ -137,9 +135,7 @@
                     <tr>
                         <td align="center" style="padding: 10px 30px 25px 30px;">
                             <div style="background-color: #0B0B14; border: 1px dashed rgba(255, 255, 255, 0.2); border-radius: 12px; padding: 20px; text-align: center;">
-                                <div style="font-size: 26px; letter-spacing: 6px; color: #FFFFFF; font-family: monospace;">
-                                    ||| | |||| | ||||| || | |||| ||
-                                </div>
+                        
                                 <div style="font-size: 11px; font-family: monospace; color: #9CA3AF; margin-top: 6px;">
                                     *{{ $ticket->booking_reference }}*
                                 </div>
@@ -150,22 +146,7 @@
                         </td>
                     </tr>
 
-                    <!-- Important Guidelines -->
-                    <tr>
-                        <td style="padding: 0 30px 25px 30px;">
-                            <div style="background-color: rgba(252, 200, 155, 0.08); border-left: 3px solid #FCC89B; border-radius: 0 10px 10px 0; padding: 15px;">
-                                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #FCC89B; text-transform: uppercase; letter-spacing: 0.5px;">
-                                    🍭 Important Concert Day Notice
-                                </h4>
-                                <ul style="margin: 0; padding-left: 18px; font-size: 12px; color: #D1D5DB; line-height: 1.6;">
-                                    <li><strong>VIP Soundcheck Schedule:</strong> Gates open for VIP Soundcheck at 14:00 WIB. Soundcheck begins promptly at 15:30 WIB.</li>
-                                    <li><strong>General Doors:</strong> Open at 16:30 WIB. Showtime starts at 19:00 WIB.</li>
-                                    <li><strong>Candybong Lightstick:</strong> Bluetooth seat pairing stations are available at Gates 2, 4, 6, and VIP.</li>
-                                    <li><strong>Identity Verification:</strong> Please bring a valid government ID or Passport matching the registrant name ({{ $ticket->name }}).</li>
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
+              
 
                     <!-- Footer -->
                     <tr>
